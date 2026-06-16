@@ -6,9 +6,11 @@
    4. in-page PDF viewer (modal)
    =================================================================== */
 
-// Base URLs for the lab repo. RAW renders the PDF inline in the iframe;
-// BLOB is GitHub's normal file page, used for the "open in new tab" link.
-const RAW  = "https://raw.githubusercontent.com/ruiyang-andy/networking-labs/main/";
+// The lab PDFs live in this same repo under /labs/, so the viewer loads
+// them same-origin (no cross-domain restrictions to work around).
+// BLOB is the matching file page in the networking-labs repo, used for
+// the modal's "open in new tab" link.
+const RAW  = "labs/";
 const BLOB = "https://github.com/ruiyang-andy/networking-labs/blob/main/";
 
 // 1. ---------- lab data ----------
@@ -83,10 +85,23 @@ const modalNew = document.getElementById("modalNew");
 const modalClose = document.getElementById("modalClose");
 let lastFocus = null;
 
+// Self-hosted PDF.js viewer (lives in /pdfjs/web/ in this repo). The
+// viewer fetches and renders the PDF bytes itself, which sidesteps the
+// "application/octet-stream" header GitHub sends that would otherwise
+// force the browser to download the file instead of displaying it.
+// Path is relative, so it works the same locally and on GitHub Pages.
+const PDFJS = "pdfjs/web/viewer.html?file=";
+
 function openPdf(path, title, trigger) {
   lastFocus = trigger || document.activeElement;
   modalTitle.innerHTML = `<span class="mid">${title || "lab report"}</span>`;
-  frame.src = RAW + path;
+
+  // Resolve the PDF to an absolute URL first. The viewer lives in a
+  // subfolder, so a bare relative path would resolve against the viewer's
+  // location, not the site root. new URL(...) anchors it to the page.
+  const pdfUrl = new URL(RAW + path, window.location.href).href;
+  frame.src = PDFJS + encodeURIComponent(pdfUrl);
+
   modalNew.href = BLOB + path;
   modal.classList.add("open");
   document.body.style.overflow = "hidden";
