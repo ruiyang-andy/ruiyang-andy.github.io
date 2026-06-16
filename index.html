@@ -117,7 +117,21 @@
   ul.plain li b{color:var(--ink);font-weight:500}
   .cta{display:inline-block;font-family:var(--mono);font-size:.85rem;color:var(--bg);background:var(--cyan);text-decoration:none;padding:10px 18px;border-radius:6px;margin-top:14px;font-weight:500}
   .cta:hover{filter:brightness(1.1)}
-  footer{padding:34px 0 50px;border-top:1px solid var(--line);font-family:var(--mono);font-size:.74rem;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  #contact{padding-bottom:30px}
+  footer{padding:34px 0 96px;border-top:1px solid var(--line);font-family:var(--mono);font-size:.74rem;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+  /* ---------- pdf modal ---------- */
+  .modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(8,15,26,.78);backdrop-filter:blur(3px)}
+  .modal.open{display:flex}
+  .modal-box{width:100%;max-width:1000px;height:100%;max-height:90vh;background:var(--panel);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+  .modal-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--panel-2)}
+  .modal-bar .mt{font-family:var(--mono);font-size:.8rem;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .modal-bar .mt .mid{color:var(--cyan)}
+  .modal-bar a.open-new{font-family:var(--mono);font-size:.74rem;color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:5px 10px;border-radius:5px;white-space:nowrap}
+  .modal-bar a.open-new:hover{color:var(--ink);border-color:var(--muted)}
+  .modal-bar button.close{background:transparent;border:1px solid var(--line);color:var(--muted);width:30px;height:30px;border-radius:5px;cursor:pointer;font-size:1rem;line-height:1}
+  .modal-bar button.close:hover{color:var(--ink);border-color:var(--cyan)}
+  .modal-box iframe{flex:1;width:100%;border:0;background:#525659}
   @media (max-width:640px){
     .lt-head,.lab{grid-template-columns:44px 1fr 90px}
     .lt-head span:nth-child(2),.lab .cat{display:none}
@@ -233,7 +247,7 @@
       <div><b>~10K</b>tokens/sec</div>
       <div><b>2.005</b>final val loss</div>
     </div>
-    <a class="cta" href="https://github.com/ruiyang-andy/networking-labs/blob/main/ai/lab-20-llm-pretraining-fsdp2.pdf">Read the full writeup</a>
+    <a class="cta" id="featBtn" href="https://github.com/ruiyang-andy/networking-labs/blob/main/ai/lab-20-llm-pretraining-fsdp2.pdf">Read the full writeup</a>
     <p class="note">Honest framing: the training code was written with heavy AI assistance. My work was the system design, the 3-GPU hardware setup, dataset preparation, running and monitoring the training stages, and debugging when things broke — and that's the part this writeup documents.</p>
   </div>
 </section>
@@ -274,8 +288,20 @@
   <span>uptime since 2024 · built by hand, hosted on GitHub Pages</span>
 </footer>
 
+<div class="modal" id="pdfModal" role="dialog" aria-modal="true" aria-label="Lab report viewer">
+  <div class="modal-box">
+    <div class="modal-bar">
+      <span class="mt" id="modalTitle"></span>
+      <a class="open-new" id="modalNew" href="#" target="_blank" rel="noopener">open in new tab ↗</a>
+      <button class="close" id="modalClose" aria-label="Close viewer">✕</button>
+    </div>
+    <iframe id="modalFrame" title="Lab report PDF"></iframe>
+  </div>
+</div>
+
 <script>
-const REPO = "https://github.com/ruiyang-andy/networking-labs/blob/main/";
+const RAW  = "https://raw.githubusercontent.com/ruiyang-andy/networking-labs/main/";
+const BLOB = "https://github.com/ruiyang-andy/networking-labs/blob/main/";
 const LABS = [
   {id:20,cat:"ai",      t:"Pretraining & fine-tuning a 1B-parameter LLM with FSDP2", hw:"3× RTX A4000", p:"ai/lab-20-llm-pretraining-fsdp2.pdf"},
   {id:19,cat:"security",t:"IPSec remote-access VPN with RDP over the tunnel",        hw:"FortiGate 40F", p:"security/lab-19-fortigate-ipsec-vpn.pdf"},
@@ -301,8 +327,9 @@ const LABS = [
 
 const rows = document.getElementById("labrows");
 const count = document.getElementById("count");
-rows.innerHTML = LABS.map(l =>
-  `<a class="lab" data-cat="${l.cat}" href="${REPO}${l.p}">
+const ordered = [...LABS].sort((a,b)=>a.id-b.id);
+rows.innerHTML = ordered.map(l =>
+  `<a class="lab" data-cat="${l.cat}" data-pdf="${l.p}" data-title="${l.t}" href="${BLOB}${l.p}">
      <span class="id">${String(l.id).padStart(2,"0")}</span>
      <span class="cat">${l.cat}</span>
      <span class="t">${l.t}</span>
@@ -322,6 +349,46 @@ function applyFilter(f){
 }
 buttons.forEach(b=>b.addEventListener("click",()=>applyFilter(b.dataset.f)));
 applyFilter("all");
+
+// ---------- PDF modal ----------
+const modal = document.getElementById("pdfModal");
+const frame = document.getElementById("modalFrame");
+const mTitle = document.getElementById("modalTitle");
+const mNew = document.getElementById("modalNew");
+let lastFocus = null;
+
+function openPdf(path, title, trigger){
+  lastFocus = trigger || document.activeElement;
+  mTitle.innerHTML = `<span class="mid">${title ? title : "lab report"}</span>`;
+  frame.src = RAW + path;
+  mNew.href = BLOB + path;
+  modal.classList.add("open");
+  document.body.style.overflow = "hidden";
+  document.getElementById("modalClose").focus();
+}
+function closePdf(){
+  modal.classList.remove("open");
+  frame.src = "";              // stop loading / free memory
+  document.body.style.overflow = "";
+  if(lastFocus) lastFocus.focus();
+}
+
+document.querySelectorAll(".lab").forEach(el=>{
+  el.addEventListener("click", e=>{
+    e.preventDefault();
+    openPdf(el.dataset.pdf, el.dataset.title, el);
+  });
+});
+
+const feat = document.getElementById("featBtn");
+if(feat) feat.addEventListener("click", e=>{
+  e.preventDefault();
+  openPdf("ai/lab-20-llm-pretraining-fsdp2.pdf", "Lab 20 — 1B-parameter LLM with FSDP2", feat);
+});
+
+document.getElementById("modalClose").addEventListener("click", closePdf);
+modal.addEventListener("click", e=>{ if(e.target===modal) closePdf(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && modal.classList.contains("open")) closePdf(); });
 </script>
 </body>
 </html>
