@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rui (Andy) Yang — Networking, Security & Local AI</title>
+<meta name="description" content="Portfolio of Rui (Andy) Yang: 20 hands-on labs on enterprise networking and security hardware, CCNA, AWS, and local AI training.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1c30;
+    --panel:#152741;
+    --panel-2:#1b3052;
+    --line:#27406a;
+    --ink:#e9eef7;
+    --muted:#92a6c4;
+    --cyan:#62cdec;
+    --amber:#f0b450;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --disp:'Space Grotesk',var(--sans);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+  body{
+    background:var(--bg);
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:48px 48px;
+    background-position:center top;
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.6;
+  }
+  a{color:var(--cyan)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:2px}
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px}
+  .eyebrow{font-family:var(--mono);font-size:.8rem;letter-spacing:.08em;color:var(--cyan);margin-bottom:.6rem}
+  .eyebrow::before{content:"// "}
+  section{padding:64px 0;border-top:1px solid var(--line)}
+  h2{font-family:var(--disp);font-size:1.7rem;font-weight:700;margin-bottom:1.2rem}
+  p.lede{color:var(--muted);max-width:62ch}
+
+  /* ---------- hero ---------- */
+  header{padding:56px 0 36px}
+  .tag{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+  .tag b{color:var(--amber);font-weight:500}
+  h1{font-family:var(--disp);font-size:clamp(2rem,5.5vw,3.1rem);font-weight:700;line-height:1.1;margin:.4rem 0 .8rem}
+  h1 .alt{color:var(--cyan)}
+  .sub{color:var(--muted);max-width:58ch}
+  .sub a{color:var(--ink);text-decoration-color:var(--cyan)}
+
+  /* ---------- topology nav ---------- */
+  .topo{margin:34px 0 6px;border:1px solid var(--line);background:rgba(15,28,48,.7);border-radius:10px;padding:14px 10px 6px}
+  .topo-cap{font-family:var(--mono);font-size:.72rem;color:var(--muted);padding:0 8px 8px;display:flex;justify-content:space-between}
+  .topo svg{width:100%;height:auto;display:block}
+  .node{cursor:pointer}
+  .node rect,.node circle{fill:var(--panel);stroke:var(--line);stroke-width:1.5;transition:stroke .15s,fill .15s}
+  .node text{fill:var(--ink);font-family:var(--mono);font-size:13px;text-anchor:middle}
+  .node .sm{fill:var(--muted);font-size:10.5px}
+  .node:hover rect,.node:hover circle,.node:focus rect,.node:focus circle{stroke:var(--cyan);fill:var(--panel-2)}
+  .link{stroke:var(--line);stroke-width:1.5;fill:none}
+  .pkt{stroke:var(--cyan);stroke-width:1.5;fill:none;stroke-dasharray:3 9;animation:flow 1.6s linear infinite;opacity:.85}
+  @keyframes flow{to{stroke-dashoffset:-24}}
+  .cloud{fill:none;stroke:var(--muted);stroke-width:1.5}
+
+  /* ---------- certs ---------- */
+  .certs{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:6px}
+  .cert{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:16px}
+  .cert h3{font-family:var(--disp);font-size:1.02rem;font-weight:500;margin-bottom:4px}
+  .cert .by{font-family:var(--mono);font-size:.74rem;color:var(--muted)}
+  .stat{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.72rem;margin-top:10px;color:var(--cyan)}
+  .stat::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--cyan)}
+  .stat.pend{color:var(--amber)}
+  .stat.pend::before{background:var(--amber)}
+
+  /* ---------- labs ---------- */
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+  .filters button{
+    font-family:var(--mono);font-size:.78rem;color:var(--muted);
+    background:transparent;border:1px solid var(--line);border-radius:99px;
+    padding:6px 14px;cursor:pointer;transition:all .15s;
+  }
+  .filters button:hover{color:var(--ink);border-color:var(--muted)}
+  .filters button[aria-pressed="true"]{color:var(--bg);background:var(--cyan);border-color:var(--cyan);font-weight:500}
+  .labtable{border:1px solid var(--line);border-radius:8px;overflow:hidden;font-family:var(--mono)}
+  .lt-head,.lab{display:grid;grid-template-columns:56px 92px 1fr 120px;gap:10px;align-items:center;padding:11px 16px}
+  .lt-head{font-size:.7rem;letter-spacing:.06em;color:var(--muted);background:var(--panel-2);border-bottom:1px solid var(--line)}
+  .lab{font-size:.83rem;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line);background:var(--panel);transition:background .12s}
+  .lab:last-child{border-bottom:none}
+  .lab:hover{background:var(--panel-2)}
+  .lab .id{color:var(--muted)}
+  .lab .cat{color:var(--cyan);font-size:.72rem}
+  .lab .hw{color:var(--muted);font-size:.72rem;text-align:right}
+  .lab .t{font-family:var(--sans);line-height:1.35}
+  .lab[hidden]{display:none}
+  .count{font-family:var(--mono);font-size:.74rem;color:var(--muted);margin-top:10px}
+
+  /* ---------- feature ---------- */
+  .feature{border:1px solid var(--line);border-left:3px solid var(--cyan);background:var(--panel);border-radius:8px;padding:22px;margin-top:8px}
+  .feature h3{font-family:var(--disp);font-size:1.2rem;margin-bottom:.6rem}
+  .specs{display:flex;flex-wrap:wrap;gap:18px;margin:14px 0;font-family:var(--mono);font-size:.78rem}
+  .specs div b{display:block;color:var(--cyan);font-size:1.05rem;font-weight:500}
+  .specs div{color:var(--muted)}
+  .feature .note{color:var(--muted);font-size:.92rem;border-top:1px dashed var(--line);padding-top:12px;margin-top:6px}
+
+  /* ---------- about / contact ---------- */
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:36px}
+  @media (max-width:720px){.two{grid-template-columns:1fr}}
+  ul.plain{list-style:none}
+  ul.plain li{padding:7px 0;border-bottom:1px dashed var(--line);color:var(--muted)}
+  ul.plain li b{color:var(--ink);font-weight:500}
+  .cta{display:inline-block;font-family:var(--mono);font-size:.85rem;color:var(--bg);background:var(--cyan);text-decoration:none;padding:10px 18px;border-radius:6px;margin-top:14px;font-weight:500}
+  .cta:hover{filter:brightness(1.1)}
+  footer{padding:34px 0 50px;border-top:1px solid var(--line);font-family:var(--mono);font-size:.74rem;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  @media (max-width:640px){
+    .lt-head,.lab{grid-template-columns:44px 1fr 90px}
+    .lt-head span:nth-child(2),.lab .cat{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <p class="tag">ruiyang-andy &nbsp;·&nbsp; bellevue, wa &nbsp;·&nbsp; <b>uw seattle '30</b></p>
+  <h1>Rui (Andy) Yang<br><span class="alt">networking · security · local AI</span></h1>
+  <p class="sub">I build and break networks on real hardware. 20 documented labs across Cisco routing, Palo Alto and Fortinet firewalls, AWS, and a 3-GPU AI workstation — plus the certs to back it up. Everything below links to the full writeups on <a href="https://github.com/ruiyang-andy/networking-labs">GitHub</a>.</p>
+
+  <nav class="topo" aria-label="Site navigation, drawn as a network topology">
+    <div class="topo-cap"><span>topology: this site</span><span>click a node to navigate</span></div>
+    <svg viewBox="0 0 920 240" role="img" aria-label="Network diagram: internet connects to a firewall, then a switch, which fans out to four sections of this page">
+      <!-- links -->
+      <path class="link" d="M118 120 H 248"/><path class="pkt" d="M118 120 H 248"/>
+      <path class="link" d="M392 120 H 478"/><path class="pkt" d="M392 120 H 478"/>
+      <path class="link" d="M560 120 C 640 120 640 48 712 48"/><path class="pkt" d="M560 120 C 640 120 640 48 712 48"/>
+      <path class="link" d="M560 120 C 650 120 650 96 712 96"/><path class="pkt" d="M560 120 C 650 120 650 96 712 96"/>
+      <path class="link" d="M560 120 C 650 120 650 144 712 144"/><path class="pkt" d="M560 120 C 650 120 650 144 712 144"/>
+      <path class="link" d="M560 120 C 640 120 640 192 712 192"/><path class="pkt" d="M560 120 C 640 120 640 192 712 192"/>
+
+      <!-- internet cloud -->
+      <g class="node" tabindex="-1" aria-hidden="true">
+        <path class="cloud" d="M52 132 a18 18 0 0 1 2-36 a22 22 0 0 1 42-8 a16 16 0 0 1 14 28 a14 14 0 0 1-10 16 z"/>
+        <text x="76" y="158" class="sm">internet</text>
+      </g>
+
+      <!-- firewall -->
+      <a href="#certs" class="node" aria-label="Go to certifications">
+        <rect x="248" y="92" width="144" height="56" rx="7"/>
+        <line x1="266" y1="106" x2="374" y2="106" stroke="var(--amber)" stroke-width="2"/>
+        <text x="320" y="126">FW-EDGE</text>
+        <text x="320" y="140" class="sm">certifications</text>
+      </a>
+
+      <!-- switch -->
+      <a href="#labs" class="node" aria-label="Go to lab index">
+        <rect x="478" y="92" width="82" height="56" rx="7"/>
+        <text x="519" y="121">SW-1</text>
+        <text x="519" y="136" class="sm">labs</text>
+      </a>
+
+      <!-- endpoints -->
+      <a href="#labs" class="node" aria-label="Go to lab index">
+        <rect x="712" y="26" width="160" height="44" rx="7"/>
+        <text x="792" y="45">lab-index</text>
+        <text x="792" y="59" class="sm">20 reports</text>
+      </a>
+      <a href="#llm" class="node" aria-label="Go to the 1B-parameter LLM project">
+        <rect x="712" y="74" width="160" height="44" rx="7"/>
+        <text x="792" y="93">gpu-rig</text>
+        <text x="792" y="107" class="sm">1B-param LLM</text>
+      </a>
+      <a href="#about" class="node" aria-label="Go to about">
+        <rect x="712" y="122" width="160" height="44" rx="7"/>
+        <text x="792" y="141">host-andy</text>
+        <text x="792" y="155" class="sm">about</text>
+      </a>
+      <a href="#contact" class="node" aria-label="Go to contact">
+        <rect x="712" y="170" width="160" height="44" rx="7"/>
+        <text x="792" y="189">mgmt-port</text>
+        <text x="792" y="203" class="sm">contact</text>
+      </a>
+    </svg>
+  </nav>
+</header>
+
+<section id="certs" class="wrap">
+  <p class="eyebrow">show certifications</p>
+  <h2>Certifications</h2>
+  <div class="certs">
+    <div class="cert"><h3>CCNA</h3><p class="by">Cisco</p><p class="stat">active</p></div>
+    <div class="cert"><h3>Cloud Practitioner</h3><p class="by">Amazon Web Services</p><p class="stat">active</p></div>
+    <div class="cert"><h3>AI Practitioner</h3><p class="by">Amazon Web Services</p><p class="stat">active</p></div>
+    <div class="cert"><h3>Security+</h3><p class="by">CompTIA</p><p class="stat pend">exam · june 2026</p></div>
+  </div>
+</section>
+
+<section id="labs" class="wrap">
+  <p class="eyebrow">show lab summary</p>
+  <h2>Lab index</h2>
+  <p class="lede">Two years of labs on physical enterprise gear, each written up with diagrams, full configurations, and the problems hit along the way. Every row opens the PDF report.</p>
+
+  <div class="filters" role="group" aria-label="Filter labs by category">
+    <button aria-pressed="true" data-f="all">all</button>
+    <button aria-pressed="false" data-f="ai">ai</button>
+    <button aria-pressed="false" data-f="security">security</button>
+    <button aria-pressed="false" data-f="routing">routing</button>
+    <button aria-pressed="false" data-f="cloud">cloud</button>
+    <button aria-pressed="false" data-f="systems">systems</button>
+  </div>
+
+  <div class="labtable">
+    <div class="lt-head"><span>id</span><span>category</span><span>lab</span><span style="text-align:right">hardware</span></div>
+    <div id="labrows"></div>
+  </div>
+  <p class="count" id="count"></p>
+</section>
+
+<section id="llm" class="wrap">
+  <p class="eyebrow">show project detail</p>
+  <h2>Featured: training a 1B-parameter LLM from scratch</h2>
+  <div class="feature">
+    <h3>From random weights to a working offline chatbot, entirely on local hardware</h3>
+    <p class="lede">Lab 20 covers the full modern training pipeline: training a 50K-vocab BPE tokenizer, distributed pretraining sharded across three GPUs with PyTorch FSDP2, a continued-pretraining anneal phase, and supervised fine-tuning with a response-only loss mask.</p>
+    <div class="specs">
+      <div><b>1.01B</b>parameters</div>
+      <div><b>~9.8B</b>tokens pretrained</div>
+      <div><b>3× A4000</b>16 GB GPUs</div>
+      <div><b>~10K</b>tokens/sec</div>
+      <div><b>2.005</b>final val loss</div>
+    </div>
+    <a class="cta" href="https://github.com/ruiyang-andy/networking-labs/blob/main/ai/lab-20-llm-pretraining-fsdp2.pdf">Read the full writeup</a>
+    <p class="note">Honest framing: the training code was written with heavy AI assistance. My work was the system design, the 3-GPU hardware setup, dataset preparation, running and monitoring the training stages, and debugging when things broke — and that's the part this writeup documents.</p>
+  </div>
+</section>
+
+<section id="about" class="wrap">
+  <div class="two">
+    <div>
+      <p class="eyebrow">show running-config</p>
+      <h2>About</h2>
+      <p class="lede">I'm a graduating senior at Newport High School in Bellevue, WA, heading to the University of Washington, Seattle in Fall 2026. I got hooked on networking through my school's CTE program and ended up spending two years configuring routers, firewalls, and eventually AI workstations. I'm looking for internships in networking, cybersecurity, or AI infrastructure.</p>
+    </div>
+    <div>
+      <p class="eyebrow">show inventory</p>
+      <h2>Stack</h2>
+      <ul class="plain">
+        <li><b>Routing</b> — OSPF, IS-IS, EIGRP, eBGP/iBGP, redistribution</li>
+        <li><b>Security</b> — PAN-OS, FortiOS, VPNs (IPSec/SSL), 802.1X/RADIUS, L2 attack mitigation</li>
+        <li><b>Cloud</b> — AWS: IAM, VPC, EC2, EBS, RDS, ELB</li>
+        <li><b>Systems</b> — Linux (Ubuntu, Kali), Windows, Docker</li>
+        <li><b>AI</b> — Ollama, OpenWebUI, ComfyUI, PyTorch FSDP2</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="wrap">
+  <p class="eyebrow">ping</p>
+  <h2>Contact</h2>
+  <p class="lede">The fastest way to reach me is email. Everything on this site lives in public repos, so feel free to dig through the writeups first.</p>
+  <p style="margin-top:14px;font-family:var(--mono)">
+    → <a href="mailto:andyry2026@gmail.com">andyry2026@gmail.com</a><br>
+    → <a href="https://github.com/ruiyang-andy">github.com/ruiyang-andy</a>
+  </p>
+</section>
+
+<footer class="wrap">
+  <span>© 2026 Rui Yang</span>
+  <span>uptime since 2024 · built by hand, hosted on GitHub Pages</span>
+</footer>
+
+<script>
+const REPO = "https://github.com/ruiyang-andy/networking-labs/blob/main/";
+const LABS = [
+  {id:20,cat:"ai",      t:"Pretraining & fine-tuning a 1B-parameter LLM with FSDP2", hw:"3× RTX A4000", p:"ai/lab-20-llm-pretraining-fsdp2.pdf"},
+  {id:19,cat:"security",t:"IPSec remote-access VPN with RDP over the tunnel",        hw:"FortiGate 40F", p:"security/lab-19-fortigate-ipsec-vpn.pdf"},
+  {id:18,cat:"security",t:"FortiAP multi-SSID with WPA2-Enterprise + FreeRADIUS",    hw:"FortiAP-421E",  p:"security/lab-18-fortiap-wpa2-enterprise.pdf"},
+  {id:17,cat:"security",t:"FortiGate from bare metal: TFTP flash & hardening",       hw:"FortiGate 40F", p:"security/lab-17-fortigate-tftp-setup.pdf"},
+  {id:16,cat:"security",t:"GlobalProtect VPN with a full certificate chain",         hw:"PA-410",        p:"security/lab-16-pa410-globalprotect.pdf"},
+  {id:15,cat:"ai",      t:"Distributed multi-GPU image generation with ComfyUI",     hw:"2× GPU",        p:"ai/lab-15-comfyui-distributed.pdf"},
+  {id:14,cat:"ai",      t:"Local LLM on Linux with Ollama, Docker & OpenWebUI",      hw:"Ubuntu",        p:"ai/lab-14-local-llm-linux.pdf"},
+  {id:13,cat:"ai",      t:"Local LLM on Windows with knowledge bases",               hw:"Windows 11",    p:"ai/lab-13-local-llm-windows.pdf"},
+  {id:12,cat:"security",t:"Dual-ISP automatic failover & failback",                  hw:"PA-410",        p:"security/lab-12-dual-isp-failover.pdf"},
+  {id:11,cat:"security",t:"URL filtering for a school network",                      hw:"PA-410",        p:"security/lab-11-pa410-url-filtering.pdf"},
+  {id:10,cat:"security",t:"Palo Alto SOHO deployment: zones, VLANs, NAT",            hw:"PA-410",        p:"security/lab-10-pa410-soho.pdf"},
+  {id:9, cat:"security",t:"Layer 2 attacks & mitigations (offense + defense)",       hw:"Cisco + Kali",  p:"security/lab-09-layer2-attacks.pdf"},
+  {id:8, cat:"routing", t:"Multi-SSID wireless AP with per-VLAN security",           hw:"Cisco AP",      p:"networking/lab-08-multi-ssid-ap.pdf"},
+  {id:7, cat:"routing", t:"Multi-area IS-IS with L1 / L1-2 routers",                 hw:"Cisco ISR",     p:"networking/lab-07-isis.pdf"},
+  {id:6, cat:"cloud",   t:"EBS, RDS, load balancing & auto scaling",                 hw:"AWS",           p:"cloud/lab-06-aws-ebs-rds-elb.pdf"},
+  {id:5, cat:"cloud",   t:"IAM, VPC design & EC2 web server",                        hw:"AWS",           p:"cloud/lab-05-aws-iam-vpc-ec2.pdf"},
+  {id:4, cat:"routing", t:"Multi-protocol network with iBGP & eBGP",                 hw:"Cisco ISR",     p:"networking/lab-04-ibgp-ebgp.pdf"},
+  {id:3, cat:"routing", t:"Multi-protocol network with eBGP",                        hw:"Cisco ISR",     p:"networking/lab-03-ebgp.pdf"},
+  {id:2, cat:"routing", t:"Multi-area OSPF (IPv4/IPv6)",                             hw:"Cisco L3",      p:"networking/lab-02-multi-area-ospf.pdf"},
+  {id:1, cat:"systems", t:"Wiping & imaging a Windows 11 desktop",                   hw:"Lenovo",        p:"systems/lab-01-windows-imaging.pdf"},
+];
+
+const rows = document.getElementById("labrows");
+const count = document.getElementById("count");
+rows.innerHTML = LABS.map(l =>
+  `<a class="lab" data-cat="${l.cat}" href="${REPO}${l.p}">
+     <span class="id">${String(l.id).padStart(2,"0")}</span>
+     <span class="cat">${l.cat}</span>
+     <span class="t">${l.t}</span>
+     <span class="hw">${l.hw}</span>
+   </a>`).join("");
+
+const buttons = document.querySelectorAll(".filters button");
+function applyFilter(f){
+  let shown = 0;
+  document.querySelectorAll(".lab").forEach(el=>{
+    const show = f==="all" || el.dataset.cat===f;
+    el.hidden = !show;
+    if(show) shown++;
+  });
+  count.textContent = `${shown} of ${LABS.length} labs shown`;
+  buttons.forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.f===f)));
+}
+buttons.forEach(b=>b.addEventListener("click",()=>applyFilter(b.dataset.f)));
+applyFilter("all");
+</script>
+</body>
+</html>
