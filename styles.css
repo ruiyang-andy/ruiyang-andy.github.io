@@ -61,20 +61,9 @@ button:focus-visible {
 }
 
 .wrap {
-  max-width: 1180px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 0 20px;
-}
-
-/* Data-heavy blocks (lab table, topology map) read better wide.
-   They break out past the text column toward a wider cap, while the
-   surrounding headings and prose stay aligned at the .wrap width.
-   Centered on the viewport; never wider than the screen. */
-.breakout {
-  width: min(1480px, 100vw - 40px);
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 .eyebrow {
