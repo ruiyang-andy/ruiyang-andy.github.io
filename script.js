@@ -144,3 +144,70 @@ modal.addEventListener("click", event => {
 document.addEventListener("keydown", event => {
   if (event.key === "Escape" && modal.classList.contains("open")) closePdf();
 });
+
+// 5. ---------- adaptive background texture ----------
+// Fills the whole viewport with faint config/packet lines, edge to edge,
+// and redraws on resize so it always fits regardless of browser width.
+// No tiling seams: we generate exactly enough rows to cover the height
+// and pad each line long enough to span the width.
+const BG_LINES = [
+  "192.168.10.1 > 10.0.0.2: ICMP echo request, id 4821, seq 12",
+  "O    10.2.2.0/24 [110/20] via 10.0.12.2, 00:14:51, GigabitEthernet0/1",
+  "B>  172.16.0.0/16 [20/0] via 10.0.23.3, 1d04h",
+  "0x0040:  4500 0054 1c46 4000 4001 a3e4 c0a8 0a01",
+  "interface GigabitEthernet0/0.10  encapsulation dot1Q 10",
+  "i L2 10.4.4.4/32 [115/20] via 10.0.34.4, GigabitEthernet0/2",
+  "%LINEPROTO-5-UPDOWN: Line protocol on Interface Gi0/1, changed to up",
+  "spanning-tree vlan 10 priority 24576    root id  8000.0011.2233",
+  "crypto isakmp policy 10  encr aes 256  hash sha256  group 14",
+  "10.0.12.2     4    65002    1841    1839    0    0  00:31:12  5",
+  "tcpdump: listening on eth0, link-type EN10MB (Ethernet), capture size 262144",
+  "ip nat inside source list 1 interface GigabitEthernet0/0 overload",
+  "0x0050:  3a8f 0050 1f90 6c2e 8001 0000 0204 05b4 0103 0308",
+  "router ospf 1  network 10.0.0.0 0.0.0.255 area 0",
+  "D    10.5.5.0/24 [90/2172416] via 10.0.45.5, 02:41:09, Gi0/3",
+  "access-list 101 permit tcp any host 10.1.1.10 eq 443",
+  "14:22:51.118843 ARP, Request who-has 10.0.0.1 tell 10.0.0.55, length 28",
+  "set security zones security-zone trust interfaces ge-0/0/0.0",
+  "isis net 49.0001.0100.0000.0004.00  is-type level-1-2",
+  "%BGP-5-ADJCHANGE: neighbor 10.0.23.3 Up",
+  "switchport trunk allowed vlan 10,20,30  switchport mode trunk",
+  "vpn ipsec-interface tunnel.1  ike gateway GW-EAST  tunnel esp-aes256",
+  "C    10.0.12.0/24 is directly connected, GigabitEthernet0/1",
+];
+
+function paintBgTexture() {
+  let layer = document.getElementById("bgtex");
+  if (!layer) {
+    layer = document.createElement("div");
+    layer.id = "bgtex";
+    layer.setAttribute("aria-hidden", "true");
+    document.body.appendChild(layer);
+  }
+
+  const lineHeight = 24;
+  const charWidth = 7.8;                       // approx width of one mono char at 13px
+  const rowCount = Math.ceil(window.innerHeight / lineHeight) + 2;
+  const colsNeeded = Math.ceil(window.innerWidth / charWidth) + 8;
+
+  let html = "";
+  for (let r = 0; r < rowCount; r++) {
+    // start each row at a different line and pad it to span the full width
+    let text = "";
+    let i = (r * 7) % BG_LINES.length;         // 7 = stride, avoids vertical repeats lining up
+    while (text.length < colsNeeded) {
+      text += BG_LINES[i % BG_LINES.length] + "    ";
+      i++;
+    }
+    const top = r * lineHeight;
+    html += `<div class="row" style="top:${top}px">${text}</div>`;
+  }
+  layer.innerHTML = html;
+}
+
+let bgResizeTimer = null;
+window.addEventListener("resize", () => {
+  clearTimeout(bgResizeTimer);
+  bgResizeTimer = setTimeout(paintBgTexture, 150);
+});
+paintBgTexture();
