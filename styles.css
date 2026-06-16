@@ -40,6 +40,8 @@ html {
 }
 
 body {
+  padding-top: 64px;
+  padding-bottom: 72px;
   background: var(--bg);
   background-image:
     linear-gradient(var(--line) 1px, transparent 1px),
@@ -93,7 +95,7 @@ p.lede {
 }
 
 /* ---------- hero ---------- */
-header { padding: 56px 0 36px; }
+header { padding: 8px 0 48px; }
 
 .tag {
   font-family: var(--mono);
@@ -416,7 +418,7 @@ ul.plain li b {
 
 /* ---------- footer ---------- */
 footer {
-  padding: 34px 0 96px;
+  padding: 34px 0 8px;
   border-top: 1px solid var(--line);
   font-family: var(--mono);
   font-size: .74rem;
